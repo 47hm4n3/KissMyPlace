@@ -1,0 +1,32 @@
+**************************KissMyPlace *********************
+
+
+Created by : Athmane BENTAHAR (3410322)
+
+Activities :
+	   MainActivity
+
+Fragments :
+	  FirsytFragment	(Home page)
+	  ProfileFragment	(Manage player profiles)
+	  ScoreFragment		(Display & reorder scores)
+	  StreetFragment 	(StreetView)
+	  MapFragment		(Map)
+
+Scores :
+
+       +------------+------------+------------+------------+------------+------------+
+       |   Level    |  Nb places |  d < 10km  |  d < 100km | d < 1000km | d > 1000km |
+       +------------+------------+------------+------------+------------+------------+
+       |   Level    |  Nb places |  d < 10km  |  d < 100km | d < 1000km	| d > 1000km |       +------------+------------+------------+------------+------------+------------+
+       |   Level    |  Nb places |  d < 10km  |  d < 100km | d < 1000km	| d > 1000km |œôøèœô§©
+
+Implemented Options :
+	    Profiles		(Use &Create & Delete profiles)
+	    Reorder scores	(By date & by profile)
+	    Rotation		(Keep game status across rotations)
+	    List places		(List last game places & distances)
+
+
+OpenData :
+	 Started generate new places implementation but didn't finish it
