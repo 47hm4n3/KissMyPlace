@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">KissMyPlace</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">KMP-3410322</string>
+    <string name="google_maps_key">AIzaSyClxeJLyx0lgBHGnrvUC1hi8M4fXTnHaDk</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="play_novice">PLAY NOVICE</string>
+    <string name="play_medium">PLAY MEDIUM</string>
+    <string name="play_expert">PLAY EXPERT</string>
+    <string name="scores">SCORES</string>
+    <string name="world_map">WorldMap</string>
 </resources>

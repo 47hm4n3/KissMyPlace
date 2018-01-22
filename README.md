@@ -104,7 +104,7 @@ Scores :
 
 Implemented Options :
 
-	    Profiles		(Use &Create & Delete profiles)
+	    Profiles		(Use, Create & Delete profiles)
 	    Reorder scores	(By date & by profile)
 	    Rotation		(Keep game status across rotations)
 	    List places		(List last game places & distances)
