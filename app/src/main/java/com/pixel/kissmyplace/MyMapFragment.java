@@ -6,5 +6,5 @@ import android.app.Fragment;
  * Created by pixel on 19/01/2018.
  */
 
-public class MapFragment extends Fragment {
+public class MyMapFragment extends Fragment {
 }
