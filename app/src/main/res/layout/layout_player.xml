@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:weightSum="4" >
+
+    <TextView
+        android:id="@+id/playerName"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:text="pName"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/playerLevel"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:text="pLevel"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/playerScore"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:text="pScore"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/playerDate"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:text="pDate"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        android:layout_weight="1"/>
+
+</LinearLayout>
