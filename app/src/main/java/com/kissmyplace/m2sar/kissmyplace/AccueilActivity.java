@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.content.Intent;
@@ -18,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -32,7 +36,6 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
     private static final int LEVEL_MEDIUM = 2;
     private static final int LEVEL_EXPERT = 3;
 
-    private android.support.v4.app.FragmentTransaction ft;
     private FloatingActionButton profile;
     private Button novice;
     private Button medium;
@@ -58,8 +61,10 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accueil);
 
-        //checkPermissions();
-        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && permissions != null) {
+            checkPermissions();
+        }
+        prefs = getSharedPreferences(PREFS_NAME, MODE_APPEND);
 
         retrieveProfile();
 
@@ -68,6 +73,13 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
 
         mode = findViewById(R.id.playMode);
         mode.setChecked(false);
+        mode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+             if (isChecked) Toast.makeText(getApplicationContext(), "THE TOLERATED ERROR IS WITHIN THE SAME COUNTRY AS THE PLACE TO FIND ", Toast.LENGTH_LONG).show();
+             else Toast.makeText(getApplicationContext(), "NORMAL PLAY MODE", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         novice = findViewById(R.id.noviceBtn);
         novice.setOnClickListener(this);
@@ -113,38 +125,58 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
-
+        alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setIcon(R.drawable.ic_action_no_network);
+        alertDialog.setTitle("No connexion detected");
+        alertDialog.setMessage("Please check your data connexion \nKissMyPlace needs internet connexion to display maps");
+        alertDialog.setCancelable(true);
         switch (v.getId()) {
             case R.id.addProfile:
                 intent = new Intent(this, ProfileActivity.class);
                 intent.putExtra("name", name);
                 intent.putExtra("lname", lname);
+                startActivityForResult(intent, 1);
                 break;
             case R.id.noviceBtn:
-                intent = new Intent(this, MainActivity.class);
-                intent.putExtra("lname", lname);
-                intent.putExtra("mode", mode.isChecked());
-                intent.putExtra("level", LEVEL_NOVICE);
+                if (checkConnectivity()) {
+                    intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("lname", lname);
+                    intent.putExtra("mode", mode.isChecked());
+                    intent.putExtra("level", LEVEL_NOVICE);
+                    startActivity(intent);
+                } else {
+                    alertDialog.show();
+                }
                 break;
             case R.id.mediumBtn:
+                if (checkConnectivity()) {
                 intent = new Intent(this, MainActivity.class);
                 intent.putExtra("lname", lname);
                 intent.putExtra("mode", mode.isChecked());
                 intent.putExtra("level", LEVEL_MEDIUM);
+                startActivity(intent);
+                } else {
+                    alertDialog.show();
+                }
                 break;
             case R.id.expertBtn:
+                if (checkConnectivity()) {
                 intent = new Intent(this, MainActivity.class);
                 intent.putExtra("lname", lname);
                 intent.putExtra("mode", mode.isChecked());
                 intent.putExtra("level", LEVEL_EXPERT);
+                startActivity(intent);
+                } else {
+                    alertDialog.show();
+                }
                 break;
             case R.id.scoresBtn:
                 intent = new Intent(this, ScoreActivity.class);
+                startActivity(intent);
                 break;
             default:
                 break;
         }
-        startActivity(intent);
     }
 
     private boolean checkPermissions() {
@@ -198,6 +230,20 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                 lname = prefs.getString(PLAYER_LNAME, "");
             }
         System.out.println("Name = " + name + "Last name = " + lname);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        name = data.getStringExtra("name");
+        lname = data.getStringExtra("lname");
+    }
+
+    private boolean checkConnectivity () {
+
+        ConnectivityManager manager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+        return ((networkInfo != null) && networkInfo.isConnected());
     }
 
     @Override

@@ -1,11 +1,11 @@
 package com.kissmyplace.m2sar.kissmyplace;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +14,7 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,9 +33,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
+
+import static java.util.Locale.FRANCE;
 
 public class MainActivity extends FragmentActivity implements
         OnStreetViewPanoramaReadyCallback,
@@ -45,8 +50,6 @@ public class MainActivity extends FragmentActivity implements
         GoogleMap.CancelableCallback {
 
     private static final String PREFS_NAME = "KissMyPlacePrefs";
-    private static final String PLAYER_NAME = "lastProfileName";
-    private static final String PLAYER_LNAME = "lastProfileLName";
     private SharedPreferences prefs;
 
 
@@ -66,6 +69,7 @@ public class MainActivity extends FragmentActivity implements
     private int level;
     private boolean mode;
     private String lname;
+    Geocoder geocoder;
     private Global g;
 
     private FloatingActionButton home;
@@ -78,16 +82,19 @@ public class MainActivity extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        prefs  = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(PREFS_NAME, MODE_APPEND);
 
         Bundle extras = getIntent().getExtras();
-        if(extras !=null) {
+        if (extras != null) {
             lname = extras.getString("lname");
             mode = extras.getBoolean("mode");
             level = extras.getInt("level");
         }
+
+        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+
         g = Global.getInstance();
-        sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf = new SimpleDateFormat("dd/MM/yyyy", FRANCE);
         myScore = new Score(lname, level, 0, sdf.format(Calendar.getInstance().getTime()));
         g.getPlaces().fillPositions();
 
@@ -128,7 +135,7 @@ public class MainActivity extends FragmentActivity implements
         scoringCircle(carte, 1);
         Log.d("MAP", "PASSAGE 2");
         carte.animateCamera(CameraUpdateFactory.newLatLng(research.getPosition()), 1500, this);
-        manageScore(level, distance(g.getPlaces().getCurrentEntry().getLatLng(), latLng));
+        manageScore(level, g.getPlaces().getCurrentEntry().getLatLng(), latLng);
     }
 
     public int distance(LatLng l1, LatLng l2) {
@@ -159,7 +166,7 @@ public class MainActivity extends FragmentActivity implements
                             i.setType("text/plain");
                             i.putExtra(Intent.EXTRA_SUBJECT, "SUBJECT");
                             i.putExtra(Intent.EXTRA_TEXT, "My new performance today is : " + myScore.score);
-                            startActivity(Intent.createChooser(i, "SHARE"));
+                            startActivityForResult(Intent.createChooser(i, "SHARE"), 1);
                         }
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -187,7 +194,7 @@ public class MainActivity extends FragmentActivity implements
     public void scoringCircle(GoogleMap map, int level) {
 
         PolylineOptions line = new PolylineOptions();
-        line.add(research.getPosition(),g.getPlaces().getCurrentEntry().getLatLng());
+        line.add(research.getPosition(), g.getPlaces().getCurrentEntry().getLatLng());
         line.color(Color.BLACK);
         line.width(5);
         carte.addPolyline(line);
@@ -218,34 +225,89 @@ public class MainActivity extends FragmentActivity implements
         carte.addCircle(near);
     }
 
-    private void manageScore(int level, int distance) {
+    private void manageScore(int level, LatLng src, LatLng dest) {
+        int distance = distance(src, dest);
         alertDialog.setIcon(R.drawable.ic_action_up);
+        alertDialog.setMessage("Good job ...");
         switch (level) {
             case LEVEL_NOVICE:
-                if (distance <= SCOPE_1) myScore.score += 50;
-                else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
-                else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
-                else {
-                    myScore.score -= 10;
-                    alertDialog.setIcon(R.drawable.ic_action_down);
+                if (!mode) {
+                    if (distance <= SCOPE_1) myScore.score += 50;
+                    else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
+                    else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
+                    else {
+                        myScore.score -= 10;
+                        alertDialog.setMessage("Too far ...");
+                        alertDialog.setIcon(R.drawable.ic_action_down);
+                    }
+                } else {
+                    try {
+                        if (geocoder.getFromLocation(src.latitude,  src.longitude, 1).get(0).getCountryName() ==
+                                geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName()) {
+                            alertDialog.setMessage("Yes " + geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName().toUpperCase());
+                            myScore.score += 100;
+                        } else {
+                            myScore.score -= 10;
+                            alertDialog.setMessage("Wrong country ...");
+                            alertDialog.setIcon(R.drawable.ic_action_down);
+                        }
+
+                    } catch (IOException e) {
+                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
             case LEVEL_MEDIUM:
-                if (distance <= SCOPE_1) myScore.score += 50;
-                else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
-                else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
-                else {
-                    myScore.score -= 10;
-                    alertDialog.setIcon(R.drawable.ic_action_down);
+                if (!mode) {
+                    if (distance <= SCOPE_1) myScore.score += 50;
+                    else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
+                    else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
+                    else {
+                        myScore.score -= 10;
+                        alertDialog.setMessage("Too far ...");
+                        alertDialog.setIcon(R.drawable.ic_action_down);
+                    }
+                } else {
+                    try {
+                        if (geocoder.getFromLocation(src.latitude,  src.longitude, 1).get(0).getCountryName() ==
+                                geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName()) {
+                            alertDialog.setMessage("Yes " + geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName().toUpperCase());
+                            myScore.score += 200;
+                        } else {
+                            myScore.score -= 50;
+                            alertDialog.setMessage("Wrong country ...");
+                            alertDialog.setIcon(R.drawable.ic_action_down);
+                        }
+
+                    } catch (IOException e) {
+                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
             case LEVEL_EXPERT:
-                if (distance <= SCOPE_1) myScore.score += 50;
-                else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
-                else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
-                else {
-                    myScore.score -= 10;
-                    alertDialog.setIcon(R.drawable.ic_action_down);
+                if (!mode) {
+                    if (distance <= SCOPE_1) myScore.score += 50;
+                    else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
+                    else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
+                    else {
+                        myScore.score -= 10;
+                        alertDialog.setMessage("Too far ...");
+                        alertDialog.setIcon(R.drawable.ic_action_down);
+                    }
+                } else {
+                    try {
+                        if (geocoder.getFromLocation(src.latitude,  src.longitude, 1).get(0).getCountryName() ==
+                                geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName()) {
+                            alertDialog.setMessage("Yes " + geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName().toUpperCase());
+                            myScore.score += 250;
+                        } else {
+                            myScore.score -= 100;
+                            alertDialog.setMessage("Wrong country ...");
+                            alertDialog.setIcon(R.drawable.ic_action_down);
+                        }
+                    } catch (IOException e) {
+                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
             default:
@@ -278,7 +340,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onFinish () {
+    public void onFinish() {
         carte.animateCamera(CameraUpdateFactory.zoomTo(0));
         carte.animateCamera(CameraUpdateFactory.zoomTo(6));
         try {
@@ -287,14 +349,14 @@ public class MainActivity extends FragmentActivity implements
             e.printStackTrace();
         }
 
-        alertDialog.setTitle("Resultat : " + myScore.score);
+        alertDialog.setTitle(" Hey " + lname.toUpperCase() + ", your actual score is : " + myScore.score);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Next", this);
         alertDialog.setCancelable(false);
         alertDialog.show();
     }
 
     private void persistScores(ArrayList<Score> list) {
-        prefs  = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         System.out.println("PERSISTING SCORE");
         SharedPreferences.Editor editor = prefs.edit();
         JSONArray l = new JSONArray();
@@ -315,7 +377,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private ArrayList<Score> retrieveScores() {
-        prefs  = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(PREFS_NAME, MODE_APPEND);
         System.out.println("RETRIEVING SCORES");
         ArrayList<Score> oldScores = new ArrayList<>();
         if (prefs == null) {
@@ -329,17 +391,26 @@ public class MainActivity extends FragmentActivity implements
                 if (jsonArray.length() > 0) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject obj = (JSONObject) jsonArray.get(i);
-                        oldScores.add(new Score((String) obj.get("playerName"),(int) obj.get("level"), (int) obj.get("score"), (String) obj.get("date")));
+                        oldScores.add(new Score((String) obj.get("playerName"), (int) obj.get("level"), (int) obj.get("score"), (String) obj.get("date")));
                     }
                 }
             } catch (JSONException e) {
-                System.out.println("Error parsing JSON file");
+                System.out.println("Error parsing JSON file in main");
             }
         }
         for (Score str : oldScores) {
             System.out.println(str);
         }
         return oldScores;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data == null) {
+            Intent i = new Intent(this, AccueilActivity.class);
+            startActivity(i);
+        }
     }
 
     @Override

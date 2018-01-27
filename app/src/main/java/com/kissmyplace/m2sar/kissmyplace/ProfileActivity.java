@@ -35,7 +35,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(PREFS_NAME, MODE_APPEND);
 
         playerName = retrieveString(PLAYER_NAME);
         playerLName = retrieveString(PLAYER_LNAME);
@@ -47,6 +47,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         name = findViewById(R.id.playerName);
         lname = findViewById(R.id.playerLName);
+
+        Bundle extras = getIntent().getExtras();
+        if(extras !=null) {
+            lname.setText(extras.getString("lname"));
+            name.setText(extras.getString("name"));
+        }
 
         name.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -77,9 +83,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     playerName = name.getText().toString();
                     playerLName = lname.getText().toString();
                     persistProfile(playerName,  playerLName);
-                    intent = new Intent(this, MainActivity.class);
+                    intent = new Intent(this, AccueilActivity.class);
+                    intent.putExtra("name", playerName);
+                    intent.putExtra("lname", playerLName);
+                    setResult(1, intent);
                     finish();
-                    startActivity(intent);
+                    //startActivity(intent);
                 } else  Toast.makeText(getApplicationContext(), "Please fill the two fields ;-)", Toast.LENGTH_SHORT).show();
                 break;
             default:

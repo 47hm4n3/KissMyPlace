@@ -64,9 +64,10 @@ public class ScoreActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_score);
 
-        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(PREFS_NAME, MODE_APPEND);
 
-        if (retrieveScores() == null) {
+        scores = retrieveScores();
+        if ( scores == null) {
             scores = new ArrayList<>();
         }
 
@@ -86,8 +87,6 @@ public class ScoreActivity extends AppCompatActivity implements View.OnClickList
 
 
         scoresLV = findViewById(R.id.scoreList);
-
-        sdf = new SimpleDateFormat("dd/MM/yyyy", FRANCE);
 
         scoreAdapter = new ScoreAdapter(this, scores);
 
@@ -220,7 +219,7 @@ public class ScoreActivity extends AppCompatActivity implements View.OnClickList
                     }
                 }
             } catch (JSONException e) {
-                System.out.println("Error parsing JSON file");
+                System.out.println("Error parsing JSON file in score");
             }
         }
         for (Score s : oldScores) {
