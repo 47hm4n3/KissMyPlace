@@ -3,31 +3,31 @@
 Created by :
 	
 	Athmane BENTAHAR (3410322)
+	Zakaria	AMRI ()
 
 Description :
 
-	    KissMyPlace is a game for evaluating our geographic knowledge, by finding a place on the globe according to a given indication.
+	    KissMyPlace is a game for evaluating our geographic knowledge, by finding a place on the globe according to a given indication hidden in a street view.
 
 Activities :
 
-	   MainActivity
+	AccuilActivity		(Home page)
+	MainActivity		(Game page)
+	ProfileActivity		(Manage player profiles)
+	ScoreActivity		(Display & reorder scores)
 
 Fragments :
 	  
-	  FirstFragment		(Home page)
-	  ProfileFragment	(Manage player profiles)
-	  ScoreFragment		(Display & reorder scores)
-	  PlacesFragment    (Display last game places list)
 	  StreetFragment 	(StreetView)
 	  MapFragment		(Map)
 
 Structure :
 
 	  +-------------------------+
-	  |      MainActivity       |
+	  |      AccueiActivity     |
 	  +-------------------------+
 	  | +---------------------+ |
-	  | |   ProfileFragment   | |
+	  | |   ProfileActivity   | |
 	  | +---------------------+ |
 	  | |                     | |
 	  | |                     | |
@@ -36,7 +36,7 @@ Structure :
 	  | |   |    pixel...  |  | |
 	  | |   +--------------+  | |
 	  | |   +--------------+  | |
-	  | |   |     SAVE     |  | |
+	  | |   |     DONE     |  | |
 	  | |   +--------------+  | |
 	  | |                     | |
 	  | |                     | |
@@ -47,11 +47,11 @@ Structure :
                     |
                     |
       +-------------|-----------+           +-------------------------+
-      |      MainAct)ivity      |           |      MainActivity       |
+      |    AccuilAct)ivity      |           |     AccueilActivity     |
       +-------------|-----------+           +-------------------------+
       | +-----------|---------+ |           | +---------------------+ |
-      | |    FirstFr)agment   | |           | |                     | |
-      | +-----------|---------+ |           | |                     | |
+      | |  pMode1+- |         | |           | |     MainActivity    | |
+      | |  pMode2+- |         | |           | +---------------------+ |
       | |           |         | |           | |                     | |
       | |   +-------|------+  | |           | |    StreetFragment   | |
       | |   |  New Profile |  | |           | |                     | |
@@ -59,7 +59,7 @@ Structure :
       | |   |    NOVICE    |--|-|-          | |                     | |
       | |   +--------------+  | |  \  level | +---------------------+ |
       | |   |    MEDIUM    |--|-|- -------> | |                     | |
-      | |   +--------------+  | |           | |                     | |
+      | |   +--------------+  | |    modes  | |                     | |
       | |   |    EXPERT    |--|-|- /        | |                     | |
       | |   +--------------+  | |           | |     MapFragment     | |
       | |   |    SCORES    |  | |           | |                     | |
@@ -68,32 +68,32 @@ Structure :
       +------------|------------+           +-------------------------+
                    |
                   \|/
-      +-------------------------+           +-------------------------+
-      |      MainActivity       |           |      MainActivity       |
-      +-------------------------+           +-------------------------+
-      | +---------------------+ |           | +---------------------+ |
-      | |    ScoreFragment    | |           | |    PlacesFragment   | |
-      | +---------------------+ |           | +---------------------+ |
-      | |    +-----------+    | |           | |+----------+--------+| |
-      | |    |   Places  |----|-|---------> | || NY       |  112km || |
-      | |    +-----------+    | |           | |+----------+--------+| |
-      | |                     | |           | || Paris    |  247km || |
-      | |+----+-----+--------+| |           | |+----------+--------+| |
-      | ||toto| 550 |18/01/18|| |           | || Tokyo    | 1359km || |
-      | |+----+-----+--------+| |           | |+----------+--------+| |
-      | ||titi| 350 |15/01/18|| |           | || Venise   |   73km || |
-      | |+----+-----+--------+| |           | |+----------+--------+| |
-      | ||tutu| 100 |20/01/18|| |           | || Rio      |  718km || |
-      | |+-------------------+| |           | |+----------+--------+| |
-      | |                     | |           | |           |  Done  || |
-      | +---------------------+ |           | +-----------+--------++ |
-      +-------------------------+           +-------------------------+
+      +-------------------------+
+      |     AccuilActivity      |
+      +-------------------------+
+      | +---------------------+ |
+      | |    ScoreActivity    | |
+      | +---------------------+ |
+      | |                     | |
+      | |                     | |
+      | |                     | |
+      | |                     | |
+      | |+----+-----+--------+| |
+      | ||toto| 550 |18/01/18|| |
+      | |+----+-----+--------+| |
+      | ||titi| 350 |15/01/18|| |
+      | |+----+-----+--------+| |
+      | ||tutu| 100 |20/01/18|| |
+      | |+-------------------+| |
+      | |                     | |
+      | +---------------------+ |
+      +-------------------------+
 
 
 Scores :
-
+	NORMAL play mode
        +------------+------------+------------+------------+------------+------------+
-       |   Level    |  Nb places |  d < 10km  |  d < 100km | d < 200km | d > 500km |
+       |   Level    |  Nb places |  d < 10km  |  d < 100km | d < 200km  | d > 500km  |
        +------------+------------+------------+------------+------------+------------+
        |   NOVICE   |      5     |     +400   |    +200    |     +50    |      +0    |
        +------------+------------+------------+------------+------------+------------+
@@ -102,13 +102,31 @@ Scores :
        |   EXPERT   |     10     |     +300   |    +100    |     +30    |     -50    |
        +------------+------------+------------+------------+------------+------------+
 
+	COUNTRY play mode
+       +------------+------------+------------+------------+
+       |   Level    |  Nb places | == country | != country |
+       +------------+------------+------------+------------+
+       |   NOVICE   |      5     |     +10    |      -5    |
+       +------------+------------+------------+------------+
+       |   MEDIUM   |      7     |     +20    |     -10    |
+       +------------+------------+------------+------------+
+       |   EXPERT   |     10     |     +30    |     -20    |
+       +------------+------------+------------+------------+
+
+	REVERSE play mode
+       +------------+------------+------------+------------+------------+------------+
+       |   Level    |  Nb places |  d > 10km  |  d > 100km | d > 200km  | d < 500km  |
+       +------------+------------+------------+------------+------------+------------+
+       |   NOVICE   |      5     |     +400   |    +200    |     +50    |      +0    |
+       +------------+------------+------------+------------+------------+------------+
+       |   MEDIUM   |      7     |     +300   |    +200    |     +40    |     -30    |
+       +------------+------------+------------+------------+------------+------------+
+       |   EXPERT   |     10     |     +300   |    +100    |     +30    |     -50    |
+       +------------+------------+------------+------------+------------+------------+
 Implemented Options :
 
-	    Profiles		(Use, Create & Delete profiles)
-	    Reorder scores	(By date & by profile)
-	    Rotation		(Keep game status across rotations)
-	    List places		(List last game places & distances)
-
-OpenData :
-
-	 Started GenerateNewPlaces implementation using OpenDate but not finished.
+	    Profiles		(Use, Create new profile)
+	    Reorder scores	(By date, by profile, by score & by level)
+	    Normal play mode	(The player needs to pick the closer location to the place to find)
+	    Country play mode	(The player needs to pick the same country as the place to find)
+	    Reverse play mode	(The player needs to pick the farthest location from the place to find)

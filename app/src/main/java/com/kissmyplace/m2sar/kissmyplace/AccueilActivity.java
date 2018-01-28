@@ -41,7 +41,8 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
     private Button medium;
     private Button expert;
     private Button score;
-    private Switch mode;
+    private Switch modeCountry;
+    private Switch modeReverse;
     private Intent intent;
     private MenuInflater menuInflater;
     private String name;
@@ -71,13 +72,27 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
         profile = findViewById(R.id.addProfile);
         profile.setOnClickListener(this);
 
-        mode = findViewById(R.id.playMode);
-        mode.setChecked(false);
-        mode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        modeCountry = findViewById(R.id.countryMode);
+        modeCountry.setChecked(false);
+        modeCountry.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-             if (isChecked) Toast.makeText(getApplicationContext(), "THE TOLERATED ERROR IS WITHIN THE SAME COUNTRY AS THE PLACE TO FIND ", Toast.LENGTH_LONG).show();
-             else Toast.makeText(getApplicationContext(), "NORMAL PLAY MODE", Toast.LENGTH_SHORT).show();
+                if (isChecked) {
+                    modeReverse.setChecked(false);
+                    Toast.makeText(getApplicationContext(), "THE TOLERATED ERROR IS WITHIN THE SAME COUNTRY AS THE PLACE TO FIND ", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        modeReverse = findViewById(R.id.reverseMode);
+        modeReverse.setChecked(false);
+        modeReverse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    modeCountry.setChecked(false);
+                    Toast.makeText(getApplicationContext(), "THE PURPOSE IS TO BE THE FARTHEST POSSIBLE FROM THE PLACE TO FIND ", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -110,10 +125,10 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                 Toast.makeText(getApplicationContext(), "Info", Toast.LENGTH_SHORT).show();
                 AlertDialog alertDialog = new AlertDialog.Builder(this).create();
                 alertDialog.setTitle("Info :");
-                alertDialog.setMessage("INFOS about KissMyPlace \n ");
+                alertDialog.setMessage("KissMyPlace is a game for evaluating our geographic knowledge, by finding a place on the globe according to a given indication hidden in a street view. \n");
                 alertDialog.show();
                 break;
-            case R.id.quit :
+            case R.id.quit:
                 Toast.makeText(getApplicationContext(), "Quit", Toast.LENGTH_SHORT).show();
                 finishAndRemoveTask();
                 break;
@@ -140,8 +155,10 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.noviceBtn:
                 if (checkConnectivity()) {
                     intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("name", name);
                     intent.putExtra("lname", lname);
-                    intent.putExtra("mode", mode.isChecked());
+                    intent.putExtra("modeCountry", modeCountry.isChecked());
+                    intent.putExtra("modeReverse", modeReverse.isChecked());
                     intent.putExtra("level", LEVEL_NOVICE);
                     startActivity(intent);
                 } else {
@@ -150,22 +167,26 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.mediumBtn:
                 if (checkConnectivity()) {
-                intent = new Intent(this, MainActivity.class);
-                intent.putExtra("lname", lname);
-                intent.putExtra("mode", mode.isChecked());
-                intent.putExtra("level", LEVEL_MEDIUM);
-                startActivity(intent);
+                    intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("name", name);
+                    intent.putExtra("lname", lname);
+                    intent.putExtra("modeCountry", modeCountry.isChecked());
+                    intent.putExtra("modeReverse", modeReverse.isChecked());
+                    intent.putExtra("level", LEVEL_MEDIUM);
+                    startActivity(intent);
                 } else {
                     alertDialog.show();
                 }
                 break;
             case R.id.expertBtn:
                 if (checkConnectivity()) {
-                intent = new Intent(this, MainActivity.class);
-                intent.putExtra("lname", lname);
-                intent.putExtra("mode", mode.isChecked());
-                intent.putExtra("level", LEVEL_EXPERT);
-                startActivity(intent);
+                    intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("name", name);
+                    intent.putExtra("lname", lname);
+                    intent.putExtra("modeCountry", modeCountry.isChecked());
+                    intent.putExtra("modeReverse", modeReverse.isChecked());
+                    intent.putExtra("level", LEVEL_EXPERT);
+                    startActivity(intent);
                 } else {
                     alertDialog.show();
                 }
@@ -204,7 +225,7 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private void retrieveProfile () {
+    private void retrieveProfile() {
         if (prefs.getString(PLAYER_NAME, "") == null || prefs.getString(PLAYER_LNAME, "") == null) {
             intent = new Intent(this, ProfileActivity.class);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -226,9 +247,9 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
             alertDialog.setCancelable(false);
             alertDialog.show();
         } else {
-                name = prefs.getString(PLAYER_NAME, "");
-                lname = prefs.getString(PLAYER_LNAME, "");
-            }
+            name = prefs.getString(PLAYER_NAME, "");
+            lname = prefs.getString(PLAYER_LNAME, "");
+        }
         System.out.println("Name = " + name + "Last name = " + lname);
     }
 
@@ -239,9 +260,9 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
         lname = data.getStringExtra("lname");
     }
 
-    private boolean checkConnectivity () {
+    private boolean checkConnectivity() {
 
-        ConnectivityManager manager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
         return ((networkInfo != null) && networkInfo.isConnected());
     }

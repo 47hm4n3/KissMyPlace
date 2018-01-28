@@ -67,7 +67,9 @@ public class MainActivity extends FragmentActivity implements
     private SimpleDateFormat sdf;
     private Score myScore;
     private int level;
-    private boolean mode;
+    private boolean modeCountry;
+    private boolean modeReverse;
+    private String name;
     private String lname;
     Geocoder geocoder;
     private Global g;
@@ -86,16 +88,18 @@ public class MainActivity extends FragmentActivity implements
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            name = extras.getString("name");
             lname = extras.getString("lname");
-            mode = extras.getBoolean("mode");
+            modeCountry = extras.getBoolean("modeCountry");
+            modeReverse = extras.getBoolean("modeReverse");
             level = extras.getInt("level");
         }
 
         geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
 
         g = Global.getInstance();
-        sdf = new SimpleDateFormat("dd/MM/yyyy", FRANCE);
-        myScore = new Score(lname, level, 0, sdf.format(Calendar.getInstance().getTime()));
+        sdf = new SimpleDateFormat("dd/MM/yyyy - hh:mm", FRANCE);
+        myScore = new Score(name + " " + lname, level, 0, sdf.format(Calendar.getInstance().getTime()));
         g.getPlaces().fillPositions();
 
         home = findViewById(R.id.goHome);
@@ -228,27 +232,39 @@ public class MainActivity extends FragmentActivity implements
     private void manageScore(int level, LatLng src, LatLng dest) {
         int distance = distance(src, dest);
         alertDialog.setIcon(R.drawable.ic_action_up);
-        alertDialog.setMessage("Good job ...");
+        alertDialog.setMessage("\tGood job ...");
         switch (level) {
             case LEVEL_NOVICE:
-                if (!mode) {
-                    if (distance <= SCOPE_1) myScore.score += 50;
-                    else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
-                    else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
-                    else {
-                        myScore.score -= 10;
-                        alertDialog.setMessage("Too far ...");
-                        alertDialog.setIcon(R.drawable.ic_action_down);
+                if (!modeCountry) {
+                    if (!modeReverse) {
+                        if (distance <= SCOPE_1) myScore.score += 50;
+                        else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
+                        else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
+                        else {
+                            myScore.score -= 10;
+                            alertDialog.setMessage("\tToo far ...");
+                            alertDialog.setIcon(R.drawable.ic_action_down);
+                        }
+                    } else {
+                        if (distance <= SCOPE_1) {
+                            myScore.score -= 10;
+                            alertDialog.setMessage("\tToo close ...");
+                            alertDialog.setIcon(R.drawable.ic_action_down);
+                        } else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 20;
+                        else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 30;
+                        else myScore.score += 50;
                     }
                 } else {
                     try {
-                        if (geocoder.getFromLocation(src.latitude,  src.longitude, 1).get(0).getCountryName() ==
-                                geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName()) {
-                            alertDialog.setMessage("Yes " + geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName().toUpperCase());
+                        if (geocoder.getFromLocation(src.latitude, src.longitude, 1).get(0).getCountryName().equals(
+                                geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName()))
+                        {
+                            alertDialog.setMessage("\tYes " + geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName().toUpperCase());
                             myScore.score += 100;
                         } else {
                             myScore.score -= 10;
-                            alertDialog.setMessage("Wrong country ...");
+                            alertDialog.setMessage("\tWrong country ... " + geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName().toUpperCase()
+                                    + " instead of " + geocoder.getFromLocation(src.latitude, src.longitude, 1).get(0).getCountryName().toUpperCase());
                             alertDialog.setIcon(R.drawable.ic_action_down);
                         }
 
@@ -258,24 +274,36 @@ public class MainActivity extends FragmentActivity implements
                 }
                 break;
             case LEVEL_MEDIUM:
-                if (!mode) {
-                    if (distance <= SCOPE_1) myScore.score += 50;
-                    else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
-                    else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
-                    else {
-                        myScore.score -= 10;
-                        alertDialog.setMessage("Too far ...");
-                        alertDialog.setIcon(R.drawable.ic_action_down);
+                if (!modeCountry) {
+                    if (!modeReverse) {
+                        if (distance <= SCOPE_1) myScore.score += 50;
+                        else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
+                        else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
+                        else {
+                            myScore.score -= 10;
+                            alertDialog.setMessage("\tToo far ...");
+                            alertDialog.setIcon(R.drawable.ic_action_down);
+                        }
+                    } else {
+                        if (distance <= SCOPE_1) {
+                            myScore.score -= 20;
+                            alertDialog.setMessage("\tToo close ...");
+                            alertDialog.setIcon(R.drawable.ic_action_down);
+                        } else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
+                        else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 50;
+                        else myScore.score += 70;
                     }
                 } else {
                     try {
-                        if (geocoder.getFromLocation(src.latitude,  src.longitude, 1).get(0).getCountryName() ==
-                                geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName()) {
-                            alertDialog.setMessage("Yes " + geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName().toUpperCase());
+                        if (geocoder.getFromLocation(src.latitude, src.longitude, 1).get(0).getCountryName().equals(
+                                geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName()))
+                        {
+                            alertDialog.setMessage("\tYes " + geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName().toUpperCase());
                             myScore.score += 200;
                         } else {
                             myScore.score -= 50;
-                            alertDialog.setMessage("Wrong country ...");
+                            alertDialog.setMessage("\tWrong country ... " + geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName().toUpperCase()
+                                    + " instead of " + geocoder.getFromLocation(src.latitude, src.longitude, 1).get(0).getCountryName().toUpperCase());
                             alertDialog.setIcon(R.drawable.ic_action_down);
                         }
 
@@ -285,24 +313,36 @@ public class MainActivity extends FragmentActivity implements
                 }
                 break;
             case LEVEL_EXPERT:
-                if (!mode) {
-                    if (distance <= SCOPE_1) myScore.score += 50;
-                    else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
-                    else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
-                    else {
-                        myScore.score -= 10;
-                        alertDialog.setMessage("Too far ...");
-                        alertDialog.setIcon(R.drawable.ic_action_down);
+                if (!modeCountry) {
+                    if (!modeReverse) {
+                        if (distance <= SCOPE_1) myScore.score += 50;
+                        else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
+                        else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
+                        else {
+                            myScore.score -= 10;
+                            alertDialog.setMessage("\tToo far ...");
+                            alertDialog.setIcon(R.drawable.ic_action_down);
+                        }
+                    } else {
+                        if (distance <= SCOPE_1) {
+                            myScore.score -= 30;
+                            alertDialog.setMessage("\tToo close ...");
+                            alertDialog.setIcon(R.drawable.ic_action_down);
+                        } else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 50;
+                        else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 70;
+                        else myScore.score += 100;
                     }
                 } else {
                     try {
-                        if (geocoder.getFromLocation(src.latitude,  src.longitude, 1).get(0).getCountryName() ==
-                                geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName()) {
-                            alertDialog.setMessage("Yes " + geocoder.getFromLocation(dest.latitude,  dest.longitude, 1).get(0).getCountryName().toUpperCase());
+                        if (geocoder.getFromLocation(src.latitude, src.longitude, 1).get(0).getCountryName().equals(
+                                geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName()))
+                        {
+                            alertDialog.setMessage("\tYes " + geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName().toUpperCase());
                             myScore.score += 250;
                         } else {
                             myScore.score -= 100;
-                            alertDialog.setMessage("Wrong country ...");
+                            alertDialog.setMessage("\tWrong country ... " + geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName().toUpperCase()
+                                    + " instead of " + geocoder.getFromLocation(src.latitude, src.longitude, 1).get(0).getCountryName().toUpperCase());
                             alertDialog.setIcon(R.drawable.ic_action_down);
                         }
                     } catch (IOException e) {

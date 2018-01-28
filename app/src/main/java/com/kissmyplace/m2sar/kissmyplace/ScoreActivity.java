@@ -51,12 +51,9 @@ public class ScoreActivity extends AppCompatActivity implements View.OnClickList
     private ListView scoresLV;
 
     private MenuInflater menuInflater;
-    private Intent intent;
-    private SimpleDateFormat sdf;
     private ArrayList<Score> scores;
 
     private ScoreAdapter scoreAdapter;
-    private Score myScore;
 
 
     @Override
@@ -67,7 +64,7 @@ public class ScoreActivity extends AppCompatActivity implements View.OnClickList
         prefs = getSharedPreferences(PREFS_NAME, MODE_APPEND);
 
         scores = retrieveScores();
-        if ( scores == null) {
+        if (scores == null) {
             scores = new ArrayList<>();
         }
 

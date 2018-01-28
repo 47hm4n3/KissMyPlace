@@ -4,6 +4,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Locale;
+
+import static java.util.Locale.FRANCE;
 
 /**
  * Created by pixel on 21/01/2018.
@@ -21,7 +24,7 @@ public class Score {
         this.playerName = "";
         this.level = 0;
         this.score = 0;
-        this.date = "01/01/1970";
+        this.date = "01/01/1970 - 00:00";
     }
 
     Score (String profile, int level, int score, String date) {
@@ -89,7 +92,7 @@ public class Score {
         }};
 
     public static Comparator<Score> compareByDate  = new Comparator<Score>() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - hh:mm", FRANCE);
         Date date1;
         Date date2;
         public int compare(Score s1, Score s2) {
