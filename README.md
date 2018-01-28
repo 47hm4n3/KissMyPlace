@@ -144,7 +144,7 @@ Implemented Options :
 
 	    Profiles		(Use, Create new profile)
 	    Reorder scores	(By date, by profile, by score & by level)
-          Scores & last used profile percistancy
+          Percistancy   (Scores & last used profile are kept in local storage)
 	    Normal play mode	(The player needs to pick the closer location to the place to find)
 	    Country play mode	(The player needs to pick the same country as the place to find)
 	    Reverse play mode	(The player needs to pick the farthest location from the place to find)
