@@ -7,11 +7,12 @@ Created by :
 
 Description :
 
-	    KissMyPlace is a game for evaluating our geographic knowledge, by finding a place on the globe according to a given indication hidden in a street view.
+	    KissMyPlace is a game for evaluating our geographic knowledge,
+        by finding a place on the globe according to a given indication hidden in a street view.
 
 Activities :
 
-	AccuilActivity		(Home page)
+	AccuilActivity		(Home page always present, the other activities are recreated for need)
 	MainActivity		(Game page)
 	ProfileActivity	(Manage player profiles)
 	ScoreActivity		(Display & reorder scores)
@@ -43,9 +44,9 @@ Structure :
 	  | |                     | |
 	  | +---------------------+ |
 	  +-------------------------+
-                   /|\
-                    |
-                    |
+         (name, |  /|\
+         lname) |   |
+               \|/  |
       +-------------|-----------+           +-------------------------+
       |    AccuilAct)ivity      |           |     AccueilActivity     |
       +-------------|-----------+           +-------------------------+
@@ -55,29 +56,29 @@ Structure :
       | |           |         | |           | |                     | |
       | |   +-------|------+  | |           | |    StreetFragment   | |
       | |   |  New Profile |  | |           | |                     | |
-      | |   +--------------+  | |           | |                     | |
-      | |   |    NOVICE    |--|-|-          | |                     | |
-      | |   +--------------+  | |  \  level | +---------------------+ |
+      | |   +--------------+  | | (profile, | |                     | |
+      | |   |    NOVICE    |--|-|-    mode, | |                     | |
+      | |   +--------------+  | |  \ level) | +---------------------+ |
       | |   |    MEDIUM    |--|-|- -------> | |                     | |
-      | |   +--------------+  | |    modes  | |                     | |
+      | |   +--------------+  | |   |       | |                     | |
       | |   |    EXPERT    |--|-|- /        | |                     | |
       | |   +--------------+  | |           | |     MapFragment     | |
       | |   |    SCORES    |  | |           | |                     | |
       | |   +------|-------+  | |           | |                     | |
       | +----------|----------+ |           | +---------------------+ |
       +------------|------------+           +-------------------------+
-                   |
-                  \|/
-      +-------------------------+
-      |     AccuilActivity      |
-      +-------------------------+
+                   |                                    |
+                  \|/                                   |
+      +-------------------------+                       | "every game"
+      |     AccuilActivity      |                       | persist (score)
+      +-------------------------+                       |
+      | +---------------------+ |                       |
+      | |    ScoreActivity    | |<-----------------------
       | +---------------------+ |
-      | |    ScoreActivity    | |
-      | +---------------------+ |
       | |                     | |
       | |                     | |
-      | |                     | |
-      | |                     | |
+      | |+----+-----+--------+| |
+      | ||prof|score|  date  || |
       | |+----+-----+--------+| |
       | ||toto| 550 |18/01/18|| |
       | |+----+-----+--------+| |
@@ -88,6 +89,21 @@ Structure :
       | |                     | |
       | +---------------------+ |
       +-------------------------+
+
+
+Entities :
+
+    Score {
+        String playerName;
+        int level;
+        int score;
+        String date;
+    }
+
+    Profile {
+        String name;
+        String lname;
+    }
 
 Scores :
 
