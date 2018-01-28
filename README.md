@@ -19,7 +19,7 @@ Activities :
 
 Fragments :
 	  
-	  StreetFragment 	(StreetView)
+        StreetFragment 	(StreetView)
 	  MapFragment		(Map)
 
 Structure :
