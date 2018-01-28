@@ -13,7 +13,7 @@ Activities :
 
 	AccuilActivity		(Home page)
 	MainActivity		(Game page)
-	ProfileActivity		(Manage player profiles)
+	ProfileActivity	(Manage player profiles)
 	ScoreActivity		(Display & reorder scores)
 
 Fragments :
@@ -89,8 +89,8 @@ Structure :
       | +---------------------+ |
       +-------------------------+
 
-
 Scores :
+
 	NORMAL play mode
        +------------+------------+------------+------------+------------+------------+
        |   Level    |  Nb places |  d < 10km  |  d < 100km | d < 200km  | d > 500km  |
@@ -123,10 +123,12 @@ Scores :
        +------------+------------+------------+------------+------------+------------+
        |   EXPERT   |     10     |     +300   |    +100    |     +30    |     -50    |
        +------------+------------+------------+------------+------------+------------+
+       
 Implemented Options :
 
 	    Profiles		(Use, Create new profile)
 	    Reorder scores	(By date, by profile, by score & by level)
+          Scores & last used profile percistancy
 	    Normal play mode	(The player needs to pick the closer location to the place to find)
 	    Country play mode	(The player needs to pick the same country as the place to find)
 	    Reverse play mode	(The player needs to pick the farthest location from the place to find)
