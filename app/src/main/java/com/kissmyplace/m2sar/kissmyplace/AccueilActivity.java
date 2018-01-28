@@ -125,7 +125,8 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                 Toast.makeText(getApplicationContext(), "Info", Toast.LENGTH_SHORT).show();
                 AlertDialog alertDialog = new AlertDialog.Builder(this).create();
                 alertDialog.setTitle("Info :");
-                alertDialog.setMessage("KissMyPlace is a game for evaluating you geographic knowledge, by finding places on the globe according to a given indications hidden in a street views.\nWith thee difficulty levels and two special plying modes, hope you will enjoy it ;-) ");
+                alertDialog.setMessage("KissMyPlace is a game for evaluating you geographic knowledge, by finding places on the globe according to a given indications hidden in a street views."
+                        + "\nWith thee difficulty levels and two special plying modes, hope you will enjoy it ;-) ");
                 alertDialog.show();
                 break;
             case R.id.quit:

@@ -1,14 +1,17 @@
 package com.kissmyplace.m2sar.kissmyplace;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -27,6 +30,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
@@ -72,7 +76,7 @@ public class MainActivity extends FragmentActivity implements
     private String name;
     private String lname;
     Geocoder geocoder;
-    private Global g;
+    private Places places;
 
     private FloatingActionButton home;
     private Intent intent;
@@ -97,10 +101,10 @@ public class MainActivity extends FragmentActivity implements
 
         geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
 
-        g = Global.getInstance();
         sdf = new SimpleDateFormat("dd/MM/yyyy - hh:mm", FRANCE);
         myScore = new Score(name + " " + lname, level, 0, sdf.format(Calendar.getInstance().getTime()));
-        g.getPlaces().fillPositions();
+        places = new Places();
+        places.fillPositions();
 
         home = findViewById(R.id.goHome);
         home.setOnClickListener(this);
@@ -119,8 +123,7 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onStreetViewPanoramaReady(StreetViewPanorama streetViewPanorama) {
-        Global g = Global.getInstance();
-        streetViewPanorama.setPosition(g.getPlaces().getCurrentEntry().getLatLng());
+        streetViewPanorama.setPosition(places.getCurrentEntry());
     }
 
     @Override
@@ -132,23 +135,20 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onMapClick(LatLng latLng) {
-        Global g = Global.getInstance();
-        research = new MarkerOptions().position(g.getPlaces().getCurrentEntry().getLatLng());
+        research = new MarkerOptions().position(places.getCurrentEntry());
         carte.addMarker(research).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
         carte.addMarker(new MarkerOptions().position(latLng));
-        scoringCircle(carte, 1);
+        scoringCircle(carte, level, latLng);
         Log.d("MAP", "PASSAGE 2");
         carte.animateCamera(CameraUpdateFactory.newLatLng(research.getPosition()), 1500, this);
-        manageScore(level, g.getPlaces().getCurrentEntry().getLatLng(), latLng);
+        manageScore(level, places.getCurrentEntry(), latLng);
     }
 
     public int distance(LatLng l1, LatLng l2) {
-        float[] res = new float[10];
-        int a = 0;
+        float[] res = new float[3];
         Location.distanceBetween(l1.latitude, l1.longitude, l2.latitude, l2.longitude, res);
-        for (int i = 0; i < 10; i++) {
-            a++;
-            Log.d("Distance", "PASSAGE 3 :: " + i + "  " + res[i]);
+        for (int i = 0; i < 3; i++) {
+            Log.e("Distance", "PASSAGE 3 :: " + i + "  " + res[i]);
         }
         return (int) res[0];
     }
@@ -156,12 +156,11 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onClick(DialogInterface dialog, int which) {
         intent = new Intent(this, AccueilActivity.class);
-        g = Global.getInstance();
-        Log.d("FINISH", " PASSAGE " + g.getPlaces().getEntry() + " List size" + g.getPlaces().placeList.size());
-        if (g.getPlaces().end()) {
+        Log.d("FINISH", " PASSAGE " + places.getEntry() + " List size" + places.placesList.size());
+        if (places.end()) {
             Log.d("FINISH", "PASSAGE");
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Share your new performance ?")
+            builder.setMessage("Share your new performance ? " + myScore.score)
                     .setTitle("Share")
                     .setIcon(R.drawable.ic_action_score)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -175,7 +174,7 @@ public class MainActivity extends FragmentActivity implements
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            g.getPlaces().fillPositions();
+                            places.fillPositions();
                             startActivity(intent);
                         }
                     });
@@ -186,7 +185,7 @@ public class MainActivity extends FragmentActivity implements
             alertDialog.setCancelable(false);
             alertDialog.show();
         } else
-            g.getPlaces().find();
+            places.find();
         carte.clear();
 
         // StreetMapFragment sf = (StreetMapFragment) getFragmentManager().findFragmentById(R.id.street_fragment);
@@ -195,13 +194,13 @@ public class MainActivity extends FragmentActivity implements
         carte.animateCamera(CameraUpdateFactory.zoomTo(0));
     }
 
-    public void scoringCircle(GoogleMap map, int level) {
+    public void scoringCircle(GoogleMap map, int level, LatLng latLng) {
 
         PolylineOptions line = new PolylineOptions();
-        line.add(research.getPosition(), g.getPlaces().getCurrentEntry().getLatLng());
-        line.color(Color.BLACK);
-        line.width(5);
-        carte.addPolyline(line);
+        line.add(research.getPosition(), latLng);
+        line.width(10);
+        line.color(Color.RED);
+        map.addPolyline(line);
 
         CircleOptions far = new CircleOptions();
         far.center(research.getPosition());//centre du cerle
@@ -224,15 +223,15 @@ public class MainActivity extends FragmentActivity implements
         near.fillColor(0x3000ff00);
         near.strokeWidth(5);
 
-        carte.addCircle(far);
-        carte.addCircle(medium);
-        carte.addCircle(near);
+        map.addCircle(far);
+        map.addCircle(medium);
+        map.addCircle(near);
     }
 
     private void manageScore(int level, LatLng src, LatLng dest) {
-        int distance = distance(src, dest);
+        int distance = distance(src, dest)/1000;
         alertDialog.setIcon(R.drawable.ic_action_up);
-        alertDialog.setMessage("\tGood job ...");
+        alertDialog.setMessage("\tGood job ... " + distance + " km");
         switch (level) {
             case LEVEL_NOVICE:
                 if (!modeCountry) {
@@ -242,13 +241,13 @@ public class MainActivity extends FragmentActivity implements
                         else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
                         else {
                             myScore.score -= 10;
-                            alertDialog.setMessage("\tToo far ...");
+                            alertDialog.setMessage("\tToo far ... " + distance + " km");
                             alertDialog.setIcon(R.drawable.ic_action_down);
                         }
                     } else {
                         if (distance <= SCOPE_1) {
                             myScore.score -= 10;
-                            alertDialog.setMessage("\tToo close ...");
+                            alertDialog.setMessage("\tToo close ... "  + distance + " km");
                             alertDialog.setIcon(R.drawable.ic_action_down);
                         } else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 20;
                         else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 30;
@@ -257,8 +256,7 @@ public class MainActivity extends FragmentActivity implements
                 } else {
                     try {
                         if (geocoder.getFromLocation(src.latitude, src.longitude, 1).get(0).getCountryName().equals(
-                                geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName()))
-                        {
+                                geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName())) {
                             alertDialog.setMessage("\tYes " + geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName().toUpperCase());
                             myScore.score += 100;
                         } else {
@@ -281,13 +279,13 @@ public class MainActivity extends FragmentActivity implements
                         else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
                         else {
                             myScore.score -= 10;
-                            alertDialog.setMessage("\tToo far ...");
+                            alertDialog.setMessage("\tToo far ... "  + distance + " km");
                             alertDialog.setIcon(R.drawable.ic_action_down);
                         }
                     } else {
                         if (distance <= SCOPE_1) {
                             myScore.score -= 20;
-                            alertDialog.setMessage("\tToo close ...");
+                            alertDialog.setMessage("\tToo close ... "  + distance + " km");
                             alertDialog.setIcon(R.drawable.ic_action_down);
                         } else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 30;
                         else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 50;
@@ -296,8 +294,7 @@ public class MainActivity extends FragmentActivity implements
                 } else {
                     try {
                         if (geocoder.getFromLocation(src.latitude, src.longitude, 1).get(0).getCountryName().equals(
-                                geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName()))
-                        {
+                                geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName())) {
                             alertDialog.setMessage("\tYes " + geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName().toUpperCase());
                             myScore.score += 200;
                         } else {
@@ -320,13 +317,13 @@ public class MainActivity extends FragmentActivity implements
                         else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 20;
                         else {
                             myScore.score -= 10;
-                            alertDialog.setMessage("\tToo far ...");
+                            alertDialog.setMessage("\tToo far ... "  + distance + " km");
                             alertDialog.setIcon(R.drawable.ic_action_down);
                         }
                     } else {
                         if (distance <= SCOPE_1) {
                             myScore.score -= 30;
-                            alertDialog.setMessage("\tToo close ...");
+                            alertDialog.setMessage("\tToo close ... "  + distance + " km");
                             alertDialog.setIcon(R.drawable.ic_action_down);
                         } else if (distance > SCOPE_1 && distance <= SCOPE_2) myScore.score += 50;
                         else if (distance > SCOPE_2 && distance <= SCOPE_3) myScore.score += 70;
@@ -335,8 +332,7 @@ public class MainActivity extends FragmentActivity implements
                 } else {
                     try {
                         if (geocoder.getFromLocation(src.latitude, src.longitude, 1).get(0).getCountryName().equals(
-                                geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName()))
-                        {
+                                geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName())) {
                             alertDialog.setMessage("\tYes " + geocoder.getFromLocation(dest.latitude, dest.longitude, 1).get(0).getCountryName().toUpperCase());
                             myScore.score += 250;
                         } else {
@@ -353,7 +349,6 @@ public class MainActivity extends FragmentActivity implements
             default:
                 break;
         }
-        g.setScore(myScore.score);
     }
 
     @Override
@@ -396,7 +391,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private void persistScores(ArrayList<Score> list) {
-        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_APPEND);
         System.out.println("PERSISTING SCORE");
         SharedPreferences.Editor editor = prefs.edit();
         JSONArray l = new JSONArray();
@@ -417,7 +412,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private ArrayList<Score> retrieveScores() {
-        prefs = getSharedPreferences(PREFS_NAME, MODE_APPEND);
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         System.out.println("RETRIEVING SCORES");
         ArrayList<Score> oldScores = new ArrayList<>();
         if (prefs == null) {
