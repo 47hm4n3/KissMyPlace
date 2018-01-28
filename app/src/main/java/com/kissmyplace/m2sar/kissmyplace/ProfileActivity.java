@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.regex.Pattern;
+
 /**
  * Created by pixel on 21/01/2018.
  */
@@ -55,8 +57,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         Bundle extras = getIntent().getExtras();
         if(extras !=null) {
-            lname.setText(extras.getString("lname"));
-            name.setText(extras.getString("name"));
+            if (extras.getString("lname") == "Name" && extras.getString("name") == "No_") {
+                name.setText("");
+                lname.setText("");
+            } else {
+                lname.setText(extras.getString("lname"));
+                name.setText(extras.getString("name"));
+            }
         }
 
         name.setOnKeyListener(new View.OnKeyListener() {
@@ -107,15 +114,18 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         switch (view.getId()) {
             case R.id.doneBtn:
                 if (!((name.getText().toString()).isEmpty() || (lname.getText().toString()).isEmpty())) {
-                    playerName = name.getText().toString();
-                    playerLName = lname.getText().toString();
-                    persistProfile(playerName,  playerLName);
-                    intent = new Intent(this, AccueilActivity.class);
-                    intent.putExtra("name", playerName);
-                    intent.putExtra("lname", playerLName);
-                    setResult(1, intent);
-                    finish();
-                    //startActivity(intent);
+                    if (name.getText().toString().matches("^[a-zA-Z0-9]{1,6}$") && lname.getText().toString().matches("^[a-zA-Z0-9]{1,6}$")) {
+                        playerName = name.getText().toString();
+                        playerLName = lname.getText().toString();
+                        persistProfile(playerName, playerLName);
+                        intent = new Intent(this, AccueilActivity.class);
+                        intent.putExtra("name", playerName);
+                        intent.putExtra("lname", playerLName);
+                        setResult(1, intent);
+                        finish();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Name and last name must be alphanumeric and 6 characters max", Toast.LENGTH_SHORT).show();
+                    }
                 } else  Toast.makeText(getApplicationContext(), "Please fill the two fields ;-)", Toast.LENGTH_SHORT).show();
                 break;
             default:

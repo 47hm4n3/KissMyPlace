@@ -125,7 +125,7 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                 Toast.makeText(getApplicationContext(), "Info", Toast.LENGTH_SHORT).show();
                 AlertDialog alertDialog = new AlertDialog.Builder(this).create();
                 alertDialog.setTitle("Info :");
-                alertDialog.setMessage("KissMyPlace is a game for evaluating our geographic knowledge, by finding a place on the globe according to a given indication hidden in a street view. \n");
+                alertDialog.setMessage("KissMyPlace is a game for evaluating you geographic knowledge, by finding places on the globe according to a given indications hidden in a street views.\nWith thee difficulty levels and two special plying modes, hope you will enjoy it ;-) ");
                 alertDialog.show();
                 break;
             case R.id.quit:
@@ -226,7 +226,7 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void retrieveProfile() {
-        if (prefs.getString(PLAYER_NAME, "") == null || prefs.getString(PLAYER_LNAME, "") == null) {
+        if (prefs.getString(PLAYER_NAME, "") == "" || prefs.getString(PLAYER_LNAME, "") == "") {
             intent = new Intent(this, ProfileActivity.class);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Want to create a new profile ?")
@@ -239,8 +239,8 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            name = prefs.getString(PLAYER_NAME, "");
-                            lname = prefs.getString(PLAYER_LNAME, "");
+                            name = prefs.getString(PLAYER_NAME, "No_");
+                            lname = prefs.getString(PLAYER_LNAME, "Name");
                         }
                     });
             AlertDialog alertDialog = builder.create();
