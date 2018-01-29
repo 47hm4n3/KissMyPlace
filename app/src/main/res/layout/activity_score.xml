@@ -11,16 +11,17 @@
         android:orientation="horizontal"
         android:layout_marginRight="10sp"
         android:layout_marginLeft="10sp"
-        android:weightSum="6">
+        android:weightSum="5">
 
         <Button
             android:id="@+id/sortProfile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:textColor="@android:color/holo_red_dark"
-            android:textSize="20sp"
+            android:textSize="15sp"
+            android:textAlignment="textStart"
             android:text="Player" />
 
         <Button
@@ -30,7 +31,8 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:textColor="@android:color/holo_red_dark"
-            android:textSize="20sp"
+            android:textSize="15sp"
+            android:textAlignment="textStart"
             android:text="Level" />
 
         <Button
@@ -40,7 +42,8 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:textColor="@android:color/holo_red_dark"
-            android:textSize="20sp"
+            android:textSize="15sp"
+            android:textAlignment="textStart"
             android:text="Score" />
 
         <Button
@@ -50,7 +53,8 @@
             android:layout_weight="2"
             android:background="?android:attr/selectableItemBackground"
             android:textColor="@android:color/holo_red_dark"
-            android:textSize="20sp"
+            android:textSize="15sp"
+            android:textAlignment="textStart"
             android:text="Date" />
 
     </LinearLayout>
