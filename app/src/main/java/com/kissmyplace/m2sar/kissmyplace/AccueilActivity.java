@@ -63,7 +63,7 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_accueil);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && permissions != null) {
-            checkPermissions();
+            //checkPermissions();
         }
         prefs = getSharedPreferences(PREFS_NAME, MODE_APPEND);
 
@@ -152,6 +152,7 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                 intent.putExtra("name", name);
                 intent.putExtra("lname", lname);
                 startActivityForResult(intent, 1);
+                finish();
                 break;
             case R.id.noviceBtn:
                 if (checkConnectivity()) {
@@ -161,6 +162,7 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                     intent.putExtra("modeCountry", modeCountry.isChecked());
                     intent.putExtra("modeReverse", modeReverse.isChecked());
                     intent.putExtra("level", LEVEL_NOVICE);
+                    finish();
                     startActivity(intent);
                 } else {
                     alertDialog.show();
@@ -174,6 +176,7 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                     intent.putExtra("modeCountry", modeCountry.isChecked());
                     intent.putExtra("modeReverse", modeReverse.isChecked());
                     intent.putExtra("level", LEVEL_MEDIUM);
+                    finish();
                     startActivity(intent);
                 } else {
                     alertDialog.show();
@@ -187,6 +190,7 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                     intent.putExtra("modeCountry", modeCountry.isChecked());
                     intent.putExtra("modeReverse", modeReverse.isChecked());
                     intent.putExtra("level", LEVEL_EXPERT);
+                    finish();
                     startActivity(intent);
                 } else {
                     alertDialog.show();
@@ -194,6 +198,7 @@ public class AccueilActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.scoresBtn:
                 intent = new Intent(this, ScoreActivity.class);
+                finish();
                 startActivity(intent);
                 break;
             default:

@@ -22,16 +22,20 @@
         <!-- l'utilisationde la google map -->
         <uses-library android:name="com.google.android.maps" />
 
-        <activity android:name=".AccueilActivity">
+        <activity android:name=".AccueilActivity"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
-        <activity android:name=".ProfileActivity" />
-        <activity android:name=".ScoreActivity" />
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".ProfileActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".ScoreActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

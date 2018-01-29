@@ -61,6 +61,10 @@ public class MainActivity extends FragmentActivity implements
     private static final int LEVEL_MEDIUM = 2;
     private static final int LEVEL_EXPERT = 3;
 
+    private static final int NUM_NOVICE = 5;
+    private static final int NUM_MEDIUM = 7;
+    private static final int NUM_EXPERT = 10;
+
     private static final int SCOPE_1 = 500;
     private static final int SCOPE_2 = 1000;
     private static final int SCOPE_3 = 5000;
@@ -77,7 +81,8 @@ public class MainActivity extends FragmentActivity implements
     private String lname;
     Geocoder geocoder;
     private Places places;
-
+    private int click = 0;
+    private LatLng location;
     private FloatingActionButton home;
     private Intent intent;
 
@@ -123,7 +128,8 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onStreetViewPanoramaReady(StreetViewPanorama streetViewPanorama) {
-        streetViewPanorama.setPosition(places.getCurrentEntry());
+        location = places.getCurrentEntry();
+        streetViewPanorama.setPosition(location);
     }
 
     @Override
@@ -135,13 +141,14 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public void onMapClick(LatLng latLng) {
-        research = new MarkerOptions().position(places.getCurrentEntry());
+        research = new MarkerOptions().position(location);
         carte.addMarker(research).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
         carte.addMarker(new MarkerOptions().position(latLng));
         scoringCircle(carte, level, latLng);
         Log.d("MAP", "PASSAGE 2");
+        click ++;
         carte.animateCamera(CameraUpdateFactory.newLatLng(research.getPosition()), 1500, this);
-        manageScore(level, places.getCurrentEntry(), latLng);
+        manageScore(level, location, latLng);
     }
 
     public int distance(LatLng l1, LatLng l2) {
@@ -157,7 +164,7 @@ public class MainActivity extends FragmentActivity implements
     public void onClick(DialogInterface dialog, int which) {
         intent = new Intent(this, AccueilActivity.class);
         Log.d("FINISH", " PASSAGE " + places.getEntry() + " List size" + places.placesList.size());
-        if (places.end()) {
+        if (this.end()) {
             Log.d("FINISH", "PASSAGE");
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Share your new performance ? " + myScore.score)
@@ -175,6 +182,7 @@ public class MainActivity extends FragmentActivity implements
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             places.fillPositions();
+                            finish();
                             startActivity(intent);
                         }
                     });
@@ -188,7 +196,6 @@ public class MainActivity extends FragmentActivity implements
             places.find();
         carte.clear();
 
-        // StreetMapFragment sf = (StreetMapFragment) getFragmentManager().findFragmentById(R.id.street_fragment);
         streetViewPanoramaFragment.getStreetViewPanoramaAsync(this);
         dialog.dismiss();
         carte.animateCamera(CameraUpdateFactory.zoomTo(0));
@@ -359,8 +366,8 @@ public class MainActivity extends FragmentActivity implements
             builder.setMessage("Are you sure you want to exit?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            finish();
                             intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            finish();
                             startActivity(intent);
                         }
                     })
@@ -391,7 +398,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private void persistScores(ArrayList<Score> list) {
-        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_APPEND);
+        prefs = getSharedPreferences(PREFS_NAME, Context.MODE_MULTI_PROCESS);
         System.out.println("PERSISTING SCORE");
         SharedPreferences.Editor editor = prefs.edit();
         JSONArray l = new JSONArray();
@@ -444,6 +451,7 @@ public class MainActivity extends FragmentActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (data == null) {
             Intent i = new Intent(this, AccueilActivity.class);
+            finish();
             startActivity(i);
         }
     }
@@ -457,4 +465,21 @@ public class MainActivity extends FragmentActivity implements
     public void onBackPressed() {
         System.out.println("BACK PRESSED");
     }
+
+
+    public boolean end(){
+        Log.d("CLICK","C = "+click);
+        switch (level) {
+            case LEVEL_NOVICE:
+                return click == NUM_NOVICE;
+            case LEVEL_MEDIUM:
+                return click == NUM_MEDIUM;
+            case LEVEL_EXPERT:
+                return click == NUM_EXPERT;
+            default:
+                return false;
+        }
+    }
+
+
 }
